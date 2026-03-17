@@ -134,12 +134,24 @@
             baseId: 'appUPT733iVxTAc76',
             tableId: 'tblxjz7JExG5Aob2E'
         };
-
+    
         let allRecords = [];
         let filteredRecords = [];
         let currentPage = 1;
         const pageSize = 50;
-
+    
+        // 1. Hàm thiết lập ngày mặc định (Từ đầu tháng đến hiện tại)
+        function initDefaultDates() {
+            const now = new Date();
+            // Ngày đầu tháng: Năm hiện tại - Tháng hiện tại - 01
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+            // Ngày hiện tại
+            const today = now.toISOString().split('T')[0];
+    
+            document.getElementById('fromDate').value = firstDay;
+            document.getElementById('toDate').value = today;
+        }
+    
         async function loadData() {
             const loading = document.getElementById('loading');
             loading.style.display = 'block';
@@ -148,68 +160,82 @@
             try {
                 allRecords = [];
                 let offset = null;
-
-                // Vòng lặp lấy toàn bộ bản ghi (Airtable giới hạn 100/lần)
+    
                 do {
                     let url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tableId}?view=Grid%20view`;
                     if (offset) url += `&offset=${offset}`;
-
+    
                     const response = await fetch(url, {
                         headers: { 'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}` }
                     });
                     const data = await response.json();
-                    allRecords = allRecords.concat(data.records);
+                    
+                    // Kiểm tra nếu có bản ghi thì mới nối vào mảng
+                    if (data.records) {
+                        allRecords = allRecords.concat(data.records);
+                    }
                     offset = data.offset;
                 } while (offset);
-
+    
+                // 2. SỬA LỖI: Loại bỏ các bản ghi không hợp lệ trước khi xử lý
+                allRecords = allRecords.filter(record => record && record.createdTime);
+    
                 // Sắp xếp mới nhất lên đầu
-                allRecords.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+                allRecords.sort((a, b) => {
+                    return new Date(b.createdTime) - new Date(a.createdTime);
+                });
                 
                 document.getElementById('totalCount').textContent = allRecords.length;
                 
-                const today = new Date().toDateString();
-                document.getElementById('todayCount').textContent = allRecords.filter(r => new Date(r.createdTime).toDateString() === today).length;
-
+                const todayStr = new Date().toDateString();
+                document.getElementById('todayCount').textContent = allRecords.filter(r => 
+                    r && r.createdTime && new Date(r.createdTime).toDateString() === todayStr
+                ).length;
+    
                 handleFilterChange();
             } catch (err) {
+                console.error("Chi tiết lỗi:", err);
                 alert("Lỗi tải dữ liệu: " + err.message);
             } finally {
                 loading.style.display = 'none';
             }
         }
-
+    
         function handleFilterChange() {
             const staffValue = document.getElementById('staffFilter').value;
             const fromDate = document.getElementById('fromDate').value;
             const toDate = document.getElementById('toDate').value;
-
+    
+            // 3. SỬA LỖI: Thêm kiểm tra record tồn tại trong filter
             filteredRecords = allRecords.filter(record => {
-                const fields = record.fields;
+                if (!record || !record.createdTime) return false;
+    
+                const fields = record.fields || {};
                 const recordDate = new Date(record.createdTime);
                 recordDate.setHours(0,0,0,0);
-
-                // Lọc theo cán bộ
+    
                 const matchStaff = !staffValue || fields['Cán bộ quản lý'] === staffValue;
-
-                // Lọc theo ngày
+    
                 let matchDate = true;
                 if (fromDate) {
                     const dFrom = new Date(fromDate);
+                    dFrom.setHours(0,0,0,0);
                     matchDate = matchDate && recordDate >= dFrom;
                 }
                 if (toDate) {
                     const dTo = new Date(toDate);
+                    dTo.setHours(0,0,0,0);
                     matchDate = matchDate && recordDate <= dTo;
                 }
-
+    
                 return matchStaff && matchDate;
             });
-
+    
             document.getElementById('filteredCount').textContent = filteredRecords.length;
             currentPage = 1;
             renderTable();
         }
-
+    
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
@@ -217,16 +243,16 @@
             const start = (currentPage - 1) * pageSize;
             const end = start + pageSize;
             const pageData = filteredRecords.slice(start, end);
-
+    
             if (pageData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Không tìm thấy dữ liệu phù hợp</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 30px;">Không tìm thấy dữ liệu phù hợp</td></tr>';
             } else {
                 pageData.forEach((record, index) => {
-                    const f = record.fields;
+                    const f = record.fields || {};
                     tbody.innerHTML += `
                         <tr>
                             <td>${start + index + 1}</td>
-                            <td>${Array.isArray(f['Loại đăng ký']) ? f['Loại đăng ký'].join(', ') : (f['Loại đăng ký'] || '')}</td>
+                            <td>${Array.isArray(f['Loại đăng ký']) ? f['Loat đăng ký'].join(', ') : (f['Loại đăng ký'] || '')}</td>
                             <td>${f['Số tài khoản'] || ''}</td>
                             <td>${f['Tên khách hàng'] || ''}</td>
                             <td>${f['Cán bộ quản lý'] || ''}</td>
@@ -235,50 +261,48 @@
                     `;
                 });
             }
-
+    
             document.getElementById('customerTable').style.display = 'table';
             renderPagination();
         }
-
+    
         function renderPagination() {
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
             const totalPages = Math.ceil(filteredRecords.length / pageSize);
-
+    
             if (totalPages <= 1) return;
-
-            // Nút đầu/trước
+    
             pagination.innerHTML += `<button class="page-btn" onclick="changePage(1)" ${currentPage === 1 ? 'disabled' : ''}>«</button>`;
-
-            // Hiển thị các số trang (giới hạn hiển thị nếu quá nhiều)
+    
             let startPage = Math.max(1, currentPage - 2);
             let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
             
             for (let i = startPage; i <= endPage; i++) {
                 pagination.innerHTML += `
                     <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>
                 `;
             }
-
-            // Nút cuối/sau
+    
             pagination.innerHTML += `<button class="page-btn" onclick="changePage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>»</button>`;
         }
-
+    
         function changePage(page) {
             currentPage = page;
             renderTable();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
+    
         function resetFilters() {
+            initDefaultDates(); // Đặt lại về đầu tháng
             document.getElementById('staffFilter').value = '';
-            document.getElementById('fromDate').value = '';
-            document.getElementById('toDate').value = '';
             handleFilterChange();
         }
-
+    
         function exportToExcel() {
-            if (filteredRecords.length === 0) return alert("Không có dữ liệu!");
+            if (filteredRecords.length === 0) return alert("Không có dữ liệu để xuất!");
             
             const data = filteredRecords.map((r, i) => ({
                 "STT": i + 1,
@@ -287,16 +311,18 @@
                 "Số điện thoại": r.fields['Số điện thoại'],
                 "Tên khách hàng": r.fields['Tên khách hàng'],
                 "Cán bộ quản lý": r.fields['Cán bộ quản lý'],
+                "Ghi chú": r.fields['Ghi chú'],
                 "Ngày đăng ký": new Date(r.createdTime).toLocaleString('vi-VN')
             }));
-
+    
             const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
-            XLSX.writeFile(wb, `Bao_cao_khach_hang_${new Date().getTime()}.xlsx`);
+            XLSX.writeFile(wb, `DS_KhachHang_${document.getElementById('staffFilter').value || 'TongHop'}_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
-
-        // Khởi tạo lần đầu
+    
+        // Khởi chạy
+        initDefaultDates();
         loadData();
     </script>
 </body>
