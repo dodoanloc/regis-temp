@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng ký thông tin QR Tài khoản/Loa Thần Tài</title>
+    <script src="assets/pizzip.min.js"></script>
+    <script src="assets/docxtemplater.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap');
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
             background: linear-gradient(-45deg, #FF006E, #8338EC, #3A86FF, #FFBE0B, #FB5607);
@@ -24,27 +26,27 @@
             align-items: center;
             padding: 20px;
         }
-        
+
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        
+
         .container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             padding: 40px;
             border-radius: 30px;
-            box-shadow: 
+            box-shadow:
                 0 25px 50px rgba(0,0,0,0.25),
                 0 0 0 1px rgba(255,255,255,0.2);
             width: 100%;
-            max-width: 480px;
+            max-width: 560px;
             position: relative;
             overflow: hidden;
         }
-        
+
         .container::before {
             content: '';
             position: absolute;
@@ -55,12 +57,12 @@
             background: radial-gradient(circle, rgba(255,0,110,0.1) 0%, transparent 70%);
             animation: pulse 4s ease-in-out infinite;
         }
-        
+
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 0.5; }
             50% { transform: scale(1.1); opacity: 0.8; }
         }
-        
+
         .icon {
             text-align: center;
             font-size: 70px;
@@ -69,13 +71,13 @@
             position: relative;
             z-index: 1;
         }
-        
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             25% { transform: translateY(-10px) rotate(-5deg); }
             75% { transform: translateY(-10px) rotate(5deg); }
         }
-        
+
         h1 {
             text-align: center;
             color: #1a1a2e;
@@ -89,7 +91,7 @@
             position: relative;
             z-index: 1;
         }
-        
+
         .subtitle {
             text-align: center;
             color: #666;
@@ -98,13 +100,13 @@
             position: relative;
             z-index: 1;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
             position: relative;
             z-index: 1;
         }
-        
+
         label {
             display: block;
             margin-bottom: 8px;
@@ -114,12 +116,12 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         label .required {
             color: #FF006E;
         }
-        
-        input, select {
+
+        input, select, textarea {
             width: 100%;
             padding: 16px 18px;
             border: 3px solid #e8e8e8;
@@ -130,16 +132,21 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
         }
-        
-        input:focus, select:focus {
+
+        textarea {
+            min-height: 96px;
+            resize: vertical;
+        }
+
+        input:focus, select:focus, textarea:focus {
             border-color: #8338EC;
             background: #fff;
-            box-shadow: 
+            box-shadow:
                 0 0 0 4px rgba(131, 56, 236, 0.15),
                 0 10px 25px rgba(131, 56, 236, 0.1);
             transform: translateY(-2px);
         }
-        
+
         select {
             cursor: pointer;
             appearance: none;
@@ -148,27 +155,32 @@
             background-position: right 15px center;
             padding-right: 45px;
         }
-        
+
+        .button-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+            margin-top: 6px;
+        }
+
         button {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(135deg, #FF006E 0%, #8338EC 50%, #3A86FF 100%);
-            background-size: 200% 200%;
             color: white;
             border: none;
             border-radius: 16px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             position: relative;
-            z-index: 1;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(255, 0, 110, 0.3);
         }
-        
+
         button::before {
             content: '';
             position: absolute;
@@ -179,33 +191,70 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transition: left 0.5s;
         }
-        
+
         button:hover:not(:disabled) {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(255, 0, 110, 0.4);
-            background-position: 100% 100%;
+            transform: translateY(-3px) scale(1.01);
         }
-        
+
         button:hover::before {
             left: 100%;
         }
-        
+
         button:disabled {
             opacity: 0.7;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF006E 0%, #8338EC 50%, #3A86FF 100%);
+            background-size: 200% 200%;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #3A86FF 0%, #00B4D8 100%);
+            box-shadow: 0 10px 30px rgba(58, 134, 255, 0.28);
+        }
+
+        .section-card {
+            display: none;
+            margin: 22px 0 12px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fbff, #f7f2ff);
+            border: 2px dashed rgba(131, 56, 236, 0.25);
+            border-radius: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-card.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #4b2991;
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
         .info-text {
             text-align: center;
             color: #888;
-            margin-top: 20px;
+            margin-top: 18px;
             font-size: 12px;
             position: relative;
             z-index: 1;
         }
-        
+
         .privacy-notice {
             background: linear-gradient(135deg, #fff5f7, #f0f0ff);
             padding: 18px;
@@ -220,12 +269,12 @@
             align-items: flex-start;
             gap: 10px;
         }
-        
+
         .privacy-notice .lock-icon {
             font-size: 20px;
             flex-shrink: 0;
         }
-        
+
         .message {
             padding: 18px;
             border-radius: 16px;
@@ -237,7 +286,7 @@
             z-index: 1;
             animation: slideIn 0.3s ease;
         }
-        
+
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -248,21 +297,23 @@
                 transform: translateY(0);
             }
         }
-        
+
         .message.success {
+            display: block;
             background: linear-gradient(135deg, #d4edda, #c3e6cb);
             color: #155724;
             border: 2px solid #28a745;
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
         }
-        
+
         .message.error {
+            display: block;
             background: linear-gradient(135deg, #fff5f5, #ffe0e0);
             color: #c53030;
             border: 2px solid #FF006E;
             box-shadow: 0 5px 15px rgba(255, 0, 110, 0.2);
         }
-        
+
         .admin-link {
             display: block;
             text-align: center;
@@ -277,13 +328,12 @@
             border-radius: 10px;
             transition: all 0.3s ease;
         }
-        
+
         .admin-link:hover {
             background: rgba(131, 56, 236, 0.1);
             transform: translateY(-2px);
         }
-        
-        /* Floating decorations */
+
         .deco {
             position: fixed;
             font-size: 30px;
@@ -291,27 +341,30 @@
             pointer-events: none;
             animation: float 6s ease-in-out infinite;
         }
-        
+
         .deco:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
         .deco:nth-child(2) { top: 20%; right: 10%; animation-delay: 1s; }
         .deco:nth-child(3) { bottom: 20%; left: 5%; animation-delay: 2s; }
         .deco:nth-child(4) { bottom: 10%; right: 15%; animation-delay: 3s; }
-        
+
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(10deg); }
         }
-        
-        /* Responsive */
-        @media (max-width: 480px) {
+
+        @media (max-width: 640px) {
             .container {
                 padding: 30px 20px;
             }
-            
+
+            .button-row {
+                grid-template-columns: 1fr;
+            }
+
             h1 {
                 font-size: 22px;
             }
-            
+
             .icon {
                 font-size: 55px;
             }
@@ -319,82 +372,51 @@
     </style>
 </head>
 <body>
-    <!-- Floating decorations -->
     <div class="deco">✨</div>
     <div class="deco">💎</div>
     <div class="deco">🚀</div>
     <div class="deco">🌟</div>
-    
+
     <div class="container">
         <div class="icon">💳🔊</div>
         <h1>Đăng ký thông tin<br>QR Tài khoản/Loa Thần Tài</h1>
         <p class="subtitle">Nhanh chóng - Tiện lợi - An toàn</p>
-        
+
         <div id="message" class="message"></div>
-        
+
         <div class="privacy-notice">
             <span class="lock-icon">🔒</span>
-            <span>Thông tin của bạn sẽ được bảo mật và chỉ sử dụng cho mục đích liên hệ.</span>
+            <span>Thông tin của bạn sẽ được bảo mật và chỉ sử dụng cho mục đích liên hệ, đăng ký và in mẫu biểu khi cần.</span>
         </div>
-        
+
         <form id="registrationForm">
             <div class="form-group">
                 <label for="loai_dang_ky">Loại đăng ký <span class="required">*</span></label>
-                <select 
-                    id="loai_dang_ky" 
-                    name="loai_dang_ky" 
-                    required
-                >
+                <select id="loai_dang_ky" name="loai_dang_ky" required>
                     <option value="">-- Chọn loại đăng ký --</option>
                     <option value="QR Tài khoản">💳 QR Tài khoản</option>
                     <option value="Loa Thần Tài">🔊 Loa Thần Tài</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
                 <label for="account_number">Số tài khoản <span class="required">*</span></label>
-                <input 
-                    type="text" 
-                    id="account_number" 
-                    name="account_number" 
-                    placeholder="Nhập số tài khoản..." 
-                    required
-                    pattern="[0-9]+"
-                    title="Vui lòng chỉ nhập số"
-                >
+                <input type="text" id="account_number" name="account_number" placeholder="Nhập số tài khoản..." required pattern="[0-9]+" title="Vui lòng chỉ nhập số">
             </div>
-            
+
             <div class="form-group">
                 <label for="phone">Số điện thoại <span class="required">*</span></label>
-                <input 
-                    type="tel" 
-                    id="phone" 
-                    name="phone" 
-                    placeholder="Nhập số điện thoại..." 
-                    required
-                    pattern="[0-9]{10,11}"
-                    title="Số điện thoại phải có 10-11 số"
-                >
+                <input type="tel" id="phone" name="phone" placeholder="Nhập số điện thoại..." required pattern="[0-9]{10,11}" title="Số điện thoại phải có 10-11 số">
             </div>
-            
+
             <div class="form-group">
                 <label for="customer_name">Tên khách hàng <span class="required">*</span></label>
-                <input 
-                    type="text" 
-                    id="customer_name" 
-                    name="customer_name" 
-                    placeholder="Nhập tên khách hàng..." 
-                    required
-                >
+                <input type="text" id="customer_name" name="customer_name" placeholder="Nhập tên khách hàng..." required>
             </div>
-            
+
             <div class="form-group">
                 <label for="can_bo_quan_ly">Cán bộ quản lý <span class="required">*</span></label>
-                <select 
-                    id="can_bo_quan_ly" 
-                    name="can_bo_quan_ly" 
-                    required
-                >
+                <select id="can_bo_quan_ly" name="can_bo_quan_ly" required>
                     <option value="">-- Chọn cán bộ quản lý --</option>
                     <option value="Đàm Thị Thu Phương">Đàm Thị Thu Phương</option>
                     <option value="Đặng Thị Hảo">Đặng Thị Hảo</option>
@@ -440,40 +462,169 @@
                     <option value="Vũ Xuân Trường">Vũ Xuân Trường</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
                 <label for="ghi_chu">Ghi chú</label>
-                <input 
-                    type="text" 
-                    id="ghi_chu" 
-                    name="ghi_chu" 
-                    placeholder="Nhập ghi chú nếu có..."
-                >
+                <textarea id="ghi_chu" name="ghi_chu" placeholder="Nhập ghi chú nếu có..."></textarea>
             </div>
-            
-            <button type="submit" id="submitBtn">🚀 Đăng ký ngay</button>
+
+            <div id="printFields" class="section-card">
+                <div class="section-title">🖨️ Thông tin bổ sung để in mẫu biểu</div>
+                <div class="section-subtitle">Bổ sung các trường dưới đây, sau đó bấm Đăng ký để vừa lưu dữ liệu vừa xuất file DOCX.</div>
+
+                <div class="form-group">
+                    <label for="ten_chu_ho">Tên chủ hộ <span class="required print-required">*</span></label>
+                    <input type="text" id="ten_chu_ho" name="ten_chu_ho" placeholder="Nhập tên chủ hộ...">
+                </div>
+
+                <div class="form-group">
+                    <label for="so_cccd">Số CCCD <span class="required print-required">*</span></label>
+                    <input type="text" id="so_cccd" name="so_cccd" placeholder="Nhập số CCCD..." inputmode="numeric" pattern="[0-9]{9,12}" title="CCCD gồm 9-12 chữ số">
+                </div>
+
+                <div class="form-group">
+                    <label for="ngay_cap">Ngày cấp <span class="required print-required">*</span></label>
+                    <input type="date" id="ngay_cap" name="ngay_cap">
+                </div>
+
+                <div class="form-group">
+                    <label for="noi_cap">Nơi cấp <span class="required print-required">*</span></label>
+                    <input type="text" id="noi_cap" name="noi_cap" placeholder="Nhập nơi cấp...">
+                </div>
+
+                <div class="form-group">
+                    <label for="dia_chi">Địa chỉ <span class="required print-required">*</span></label>
+                    <textarea id="dia_chi" name="dia_chi" placeholder="Nhập địa chỉ..."></textarea>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button type="button" id="printBtn" class="btn-secondary">🖨️ In mẫu biểu</button>
+                <button type="submit" id="submitBtn" class="btn-primary">🚀 Đăng ký</button>
+            </div>
         </form>
-        
-        <p class="info-text">✨ Các trường có dấu <span style="color:#FF006E;font-weight:bold">*</span> bắt buộc phải điền</p>
-        
+
+        <p class="info-text">✨ Chức năng In mẫu biểu chỉ áp dụng khi chọn loại đăng ký <strong>Loa Thần Tài</strong>. Khi bấm Đăng ký, hệ thống sẽ lưu dữ liệu và xuất file DOCX.</p>
+
         <a href="admin.html" class="admin-link">🔐 Quản lý dữ liệu</a>
     </div>
-    
+
     <script>
-        // Airtable Configuration
         const AIRTABLE_CONFIG = {
             apiKey: 'patnWGs6JwKmhOfNX.23903394b7357442b9ed396470a06d3ad920a6727441fd312de9b62e55df8c91',
             baseId: 'appUPT733iVxTAc76',
             tableId: 'tblxjz7JExG5Aob2E',
             tableName: 'Customers'
         };
-        
-        // Load saved staff selection from localStorage
+
+        const DOCX_TEMPLATE_URL = 'templates/mau_bieu.docx';
+        const PRINT_ENABLED_SERVICE = 'Loa Thần Tài';
+        let printMode = false;
+
+        const messageDiv = document.getElementById('message');
+        const printFields = document.getElementById('printFields');
+        const printBtn = document.getElementById('printBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function showMessage(type, html) {
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = html;
+        }
+
+        function clearMessage() {
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = '';
+            messageDiv.style.display = 'none';
+        }
+
+        function normalizeSpaces(value) {
+            return value.trim().replace(/\s+/g, ' ');
+        }
+
+        function digitsOnly(value) {
+            return value.replace(/\D/g, '');
+        }
+
+        function formatDateForDoc(dateValue) {
+            if (!dateValue) return '';
+            const [y, m, d] = dateValue.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
+        function getNowParts() {
+            const now = new Date();
+            return {
+                ngay_dang_ky: now.toLocaleDateString('vi-VN'),
+                gio_dang_ky: now.toLocaleTimeString('vi-VN')
+            };
+        }
+
+        function isLoaThanTaiSelected() {
+            return document.getElementById('loai_dang_ky').value === PRINT_ENABLED_SERVICE;
+        }
+
+        function clearPrintFields() {
+            ['ten_chu_ho', 'so_cccd', 'ngay_cap', 'noi_cap', 'dia_chi'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+        }
+
+        function syncPrintButtonState() {
+            const enabledByService = isLoaThanTaiSelected();
+            printBtn.disabled = !enabledByService;
+            printBtn.style.opacity = enabledByService ? '1' : '0.55';
+            printBtn.title = enabledByService ? 'Bật chế độ in mẫu biểu cho Loa Thần Tài' : 'Chỉ dùng khi chọn loại đăng ký là Loa Thần Tài';
+
+            if (!enabledByService && printMode) {
+                updatePrintMode(false, { preserveMessage: true, clearValues: true });
+            }
+        }
+
+        function updatePrintMode(enabled, options = {}) {
+            const { preserveMessage = false, clearValues = false } = options;
+            const allowed = isLoaThanTaiSelected();
+
+            if (enabled && !allowed) {
+                printMode = false;
+                printFields.classList.remove('show');
+                printBtn.textContent = '🖨️ In mẫu biểu';
+                printBtn.classList.remove('btn-primary');
+                printBtn.classList.add('btn-secondary');
+                if (!preserveMessage) {
+                    showMessage('error', '⚠️ Chức năng in mẫu biểu chỉ áp dụng khi chọn <strong>Loa Thần Tài</strong>.');
+                }
+                return;
+            }
+
+            printMode = enabled;
+            printFields.classList.toggle('show', enabled);
+            printBtn.textContent = enabled ? '✅ Đã bật in mẫu biểu' : '🖨️ In mẫu biểu';
+            printBtn.classList.toggle('btn-primary', enabled);
+            printBtn.classList.toggle('btn-secondary', !enabled);
+
+            ['ten_chu_ho', 'so_cccd', 'ngay_cap', 'noi_cap', 'dia_chi'].forEach(id => {
+                document.getElementById(id).required = enabled;
+            });
+
+            if (!enabled && clearValues) {
+                clearPrintFields();
+            }
+
+            if (enabled) {
+                showMessage('success', '🖨️ Đã bật chế độ in mẫu biểu cho <strong>Loa Thần Tài</strong>. Vui lòng nhập thêm thông tin rồi bấm <strong>Đăng ký</strong>.');
+            } else if (!preserveMessage) {
+                clearMessage();
+            }
+        }
+
+        printBtn.addEventListener('click', function() {
+            updatePrintMode(!printMode);
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const savedStaff = localStorage.getItem('can_bo_quan_ly');
             if (savedStaff) {
                 const select = document.getElementById('can_bo_quan_ly');
-                // Check if the saved value exists in options
                 for (let i = 0; i < select.options.length; i++) {
                     if (select.options[i].value === savedStaff) {
                         select.value = savedStaff;
@@ -481,119 +632,169 @@
                     }
                 }
             }
+
+            syncPrintButtonState();
+            document.getElementById('loai_dang_ky').addEventListener('change', function() {
+                syncPrintButtonState();
+                if (isLoaThanTaiSelected()) {
+                    clearMessage();
+                }
+            });
         });
-        
-        // Form submission handler
+
+        async function exportDocx(data) {
+            const response = await fetch(DOCX_TEMPLATE_URL);
+            if (!response.ok) {
+                throw new Error('Không đọc được template DOCX. Hãy thêm file templates/mau_bieu.docx vào repo.');
+            }
+
+            const buffer = await response.arrayBuffer();
+            const zip = new PizZip(buffer);
+            const doc = new window.docxtemplater(zip, {
+                paragraphLoop: true,
+                linebreaks: true
+            });
+
+            doc.render(data);
+            const blob = doc.getZip().generate({
+                type: 'blob',
+                mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            });
+
+            const fileName = `Mau_bieu_${(data.customer_name || 'khach-hang').replace(/[^\p{L}\p{N}]+/gu, '_')}_${Date.now()}.docx`;
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        }
+
         document.getElementById('registrationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const messageDiv = document.getElementById('message');
-            
-            // Validate baseId is configured
+            clearMessage();
+
             if (!AIRTABLE_CONFIG.baseId) {
-                messageDiv.className = 'message error';
-                messageDiv.textContent = '⚠️ Vui lòng cấu hình Base ID trong mã nguồn.';
+                showMessage('error', '⚠️ Vui lòng cấu hình Base ID trong mã nguồn.');
                 return;
             }
-            
-            // Get form values
-            const accountNumber = document.getElementById('account_number').value.trim();
-            const loaiDangKy = document.getElementById('loai_dang_ky').value;
-            
-            // Disable button
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Đang kiểm tra...';
-            
-            try {
-                // Check for duplicate: Same account number + same registration type
-                const filterFormula = `AND({Số tài khoản} = "${accountNumber}", {Loại đăng ký} = "${loaiDangKy}")`;
-                const checkResponse = await fetch(
-                    `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tableId}?filterByFormula=${encodeURIComponent(filterFormula)}&maxRecords=1`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`
-                        }
-                    }
-                );
-                
-                if (!checkResponse.ok) {
-                    throw new Error('Không thể kiểm tra dữ liệu');
-                }
-                
-                const checkData = await checkResponse.json();
-                
-                if (checkData.records.length > 0) {
-                    messageDiv.className = 'message error';
-                    messageDiv.innerHTML = `⚠️ <strong>Số tài khoản ${accountNumber}</strong> đã đăng ký "${loaiDangKy}" rồi!<br>Vui lòng chọn loại khác.`;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Đăng ký ngay';
+
+            const formValues = {
+                loai_dang_ky: document.getElementById('loai_dang_ky').value,
+                account_number: digitsOnly(document.getElementById('account_number').value),
+                phone: digitsOnly(document.getElementById('phone').value),
+                customer_name: normalizeSpaces(document.getElementById('customer_name').value),
+                can_bo_quan_ly: document.getElementById('can_bo_quan_ly').value,
+                ghi_chu: normalizeSpaces(document.getElementById('ghi_chu').value || ''),
+                ten_chu_ho: normalizeSpaces(document.getElementById('ten_chu_ho').value || ''),
+                so_cccd: digitsOnly(document.getElementById('so_cccd').value || ''),
+                ngay_cap: document.getElementById('ngay_cap').value,
+                noi_cap: normalizeSpaces(document.getElementById('noi_cap').value || ''),
+                dia_chi: normalizeSpaces(document.getElementById('dia_chi').value || '')
+            };
+
+            if (printMode && !isLoaThanTaiSelected()) {
+                showMessage('error', '⚠️ Chức năng in mẫu biểu chỉ áp dụng cho đăng ký <strong>Loa Thần Tài</strong>.');
+                return;
+            }
+
+            if (printMode) {
+                const missing = [];
+                if (!formValues.ten_chu_ho) missing.push('Tên chủ hộ');
+                if (!formValues.so_cccd) missing.push('Số CCCD');
+                if (!formValues.ngay_cap) missing.push('Ngày cấp');
+                if (!formValues.noi_cap) missing.push('Nơi cấp');
+                if (!formValues.dia_chi) missing.push('Địa chỉ');
+
+                if (missing.length) {
+                    showMessage('error', `⚠️ Thiếu thông tin để in mẫu biểu: <strong>${missing.join(', ')}</strong>`);
                     return;
                 }
-                
-                // No duplicate, proceed with submission
-                submitBtn.textContent = '💾 Đang lưu...';
-                
-                // Get form data
-                const formData = {
+            }
+
+            submitBtn.disabled = true;
+            printBtn.disabled = true;
+            submitBtn.textContent = printMode ? '💾 Đang lưu & xuất biểu...' : '💾 Đang lưu...';
+
+            try {
+                const filterFormula = `AND({Số tài khoản} = "${formValues.account_number}", {Loại đăng ký} = "${formValues.loai_dang_ky}")`;
+                const checkResponse = await fetch(
+                    `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tableId}?filterByFormula=${encodeURIComponent(filterFormula)}&maxRecords=1`,
+                    { headers: { 'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}` } }
+                );
+
+                if (!checkResponse.ok) throw new Error('Không thể kiểm tra dữ liệu');
+
+                const checkData = await checkResponse.json();
+                if (checkData.records.length > 0) {
+                    throw new Error(`Số tài khoản ${formValues.account_number} đã đăng ký "${formValues.loai_dang_ky}" rồi.`);
+                }
+
+                const payload = {
                     fields: {
-                        'Loại đăng ký': loaiDangKy,
-                        'Số tài khoản': accountNumber,
-                        'Số điện thoại': document.getElementById('phone').value,
-                        'Tên khách hàng': document.getElementById('customer_name').value,
-                        'Cán bộ quản lý': document.getElementById('can_bo_quan_ly').value,
-                        'Ghi chú': document.getElementById('ghi_chu').value || ''
+                        'Loại đăng ký': formValues.loai_dang_ky,
+                        'Số tài khoản': formValues.account_number,
+                        'Số điện thoại': formValues.phone,
+                        'Tên khách hàng': formValues.customer_name,
+                        'Cán bộ quản lý': formValues.can_bo_quan_ly,
+                        'Ghi chú': formValues.ghi_chu,
+                        'Tên chủ hộ': formValues.ten_chu_ho,
+                        'Số CCCD': formValues.so_cccd,
+                        'Ngày cấp': formValues.ngay_cap || '',
+                        'Nơi cấp': formValues.noi_cap,
+                        'Địa chỉ': formValues.dia_chi,
+                        'Yêu cầu in mẫu biểu': printMode ? 'Có' : 'Không'
                     }
                 };
-                
-                // Submit to Airtable
+
                 const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tableId}`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(payload)
                 });
-                
-                if (response.ok) {
-                    // Save staff selection to localStorage
-                    const savedStaff = document.getElementById('can_bo_quan_ly').value;
-                    localStorage.setItem('can_bo_quan_ly', savedStaff);
-                    
-                    messageDiv.className = 'message success';
-                    messageDiv.innerHTML = '✨ <strong>Đăng ký thành công!</strong><br>Thông tin đã được lưu.';
-                    document.getElementById('registrationForm').reset();
-                    
-                    // Restore staff selection after reset
-                    document.getElementById('can_bo_quan_ly').value = savedStaff;
-                    
-                    setTimeout(() => {
-                        window.location.href = 'thank-you.html';
-                    }, 2000);
-                } else {
+
+                if (!response.ok) {
                     const errorData = await response.json();
-                    console.error('Airtable error:', errorData);
-                    
-                    let errorMsg = 'Lỗi kết nối';
-                    if (errorData.error) {
-                        if (errorData.error.type === 'INVALID_PERMISSIONS') {
-                            errorMsg = 'Token không có quyền ghi dữ liệu.';
-                        } else if (errorData.error.type === 'NOT_FOUND') {
-                            errorMsg = 'Không tìm thấy table.';
-                        } else {
-                            errorMsg = errorData.error.message || 'Lỗi không xác định';
-                        }
-                    }
-                    throw new Error(errorMsg);
+                    throw new Error(errorData?.error?.message || 'Không thể lưu dữ liệu');
                 }
+
+                localStorage.setItem('can_bo_quan_ly', formValues.can_bo_quan_ly);
+
+                if (printMode) {
+                    const nowParts = getNowParts();
+                    await exportDocx({
+                        ...formValues,
+                        ngay_cap: formatDateForDoc(formValues.ngay_cap),
+                        ...nowParts
+                    });
+                }
+
+                showMessage('success', printMode
+                    ? '✅ Đăng ký thành công và đã xuất mẫu biểu DOCX.'
+                    : '✅ Đăng ký thành công. Thông tin đã được lưu.'
+                );
+
+                const savedStaff = formValues.can_bo_quan_ly;
+                document.getElementById('registrationForm').reset();
+                document.getElementById('can_bo_quan_ly').value = savedStaff;
+                updatePrintMode(false, { clearValues: true });
+                document.getElementById('can_bo_quan_ly').value = savedStaff;
+                syncPrintButtonState();
+
+                setTimeout(() => {
+                    window.location.href = 'thank-you.html';
+                }, 1800);
             } catch (error) {
-                messageDiv.className = 'message error';
-                messageDiv.textContent = '❌ ' + error.message;
-                console.error('Error:', error);
+                showMessage('error', `❌ ${error.message}`);
+                console.error(error);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Đăng ký ngay';
+                printBtn.disabled = false;
+                submitBtn.textContent = '🚀 Đăng ký';
             }
         });
     </script>

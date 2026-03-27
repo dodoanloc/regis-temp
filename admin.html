@@ -15,7 +15,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f0f2f5;
@@ -23,9 +23,8 @@
             color: #333;
         }
 
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container { max-width: 1480px; margin: 0 auto; }
 
-        /* Header & Navigation */
         .header-area {
             display: flex;
             justify-content: space-between;
@@ -39,7 +38,6 @@
 
         h1 { font-size: 24px; color: #333; }
 
-        /* Stats Cards */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -59,7 +57,6 @@
         .stat-number { font-size: 30px; font-weight: bold; color: var(--primary-color); }
         .stat-label { color: #666; margin-top: 5px; font-size: 14px; }
 
-        /* Filter Box */
         .filter-box {
             background: white;
             padding: 20px;
@@ -83,7 +80,6 @@
             min-width: 180px;
         }
 
-        /* Buttons */
         .btn {
             padding: 10px 20px;
             border-radius: 8px;
@@ -105,7 +101,6 @@
         .btn-reset { background: #ff9800; }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        /* Table */
         .table-container {
             background: white;
             border-radius: 15px;
@@ -113,18 +108,18 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { 
+        table { width: 100%; border-collapse: collapse; min-width: 1350px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+        th {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white; 
+            color: white;
             font-weight: 500;
             position: sticky;
             top: 0;
+            white-space: nowrap;
         }
         tr:hover { background: #f8f9ff; }
 
-        /* Pagination */
         .pagination {
             display: flex;
             justify-content: center;
@@ -145,16 +140,29 @@
         .page-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
         .page-btn:disabled { cursor: not-allowed; opacity: 0.4; }
 
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-print { background: #e0f2fe; color: #0369a1; }
+        .badge-normal { background: #f3f4f6; color: #4b5563; }
+
         #loading { text-align: center; padding: 40px; font-size: 18px; color: #666; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header-area">
             <a href="index.html" class="btn btn-back">⬅️ Quay lại đăng ký</a>
             <h1>📊 Quản lý dữ liệu khách hàng</h1>
-            <div style="width: 150px"></div> </div>
+            <div style="width: 150px"></div>
+        </div>
 
         <div class="stats">
             <div class="stat-card">
@@ -228,7 +236,7 @@
                 <label>Đến ngày:</label>
                 <input type="date" id="toDate" onchange="handleFilterChange()">
             </div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button class="btn btn-refresh" onclick="loadData()">🔄 Tải lại</button>
                 <button class="btn btn-reset" onclick="resetFilters()">↩️ Đặt lại</button>
                 <button class="btn btn-export" id="exportBtn" onclick="exportToExcel()">📥 Xuất Excel</button>
@@ -245,7 +253,13 @@
                         <th>Loại đăng ký</th>
                         <th>Số tài khoản</th>
                         <th>Tên khách hàng</th>
+                        <th>Tên chủ hộ</th>
+                        <th>Số CCCD</th>
+                        <th>Ngày cấp</th>
+                        <th>Nơi cấp</th>
+                        <th>Địa chỉ</th>
                         <th>Cán bộ quản lý</th>
+                        <th>In mẫu biểu</th>
                         <th>Ghi chú</th>
                         <th>Ngày đăng ký</th>
                     </tr>
@@ -258,7 +272,6 @@
     </div>
 
     <script>
-        // Cấu hình Airtable (Anh giữ nguyên các ID này)
         const AIRTABLE_CONFIG = {
             apiKey: 'patnWGs6JwKmhOfNX.23903394b7357442b9ed396470a06d3ad920a6727441fd312de9b62e55df8c91',
             baseId: 'appUPT733iVxTAc76',
@@ -270,7 +283,6 @@
         let currentPage = 1;
         const pageSize = 50;
 
-        // 1. Khởi tạo ngày mặc định (Đầu tháng đến Hiện tại)
         function initDefaultDates() {
             const now = new Date();
             const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
@@ -279,13 +291,21 @@
             document.getElementById('toDate').value = today;
         }
 
-        // 2. Tải toàn bộ dữ liệu (Hỗ trợ hơn 100 bản ghi)
+        function esc(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         async function loadData() {
             const loading = document.getElementById('loading');
             const table = document.getElementById('customerTable');
             loading.style.display = 'block';
             table.style.display = 'none';
-            
+
             try {
                 allRecords = [];
                 let offset = null;
@@ -297,36 +317,31 @@
                     const response = await fetch(url, {
                         headers: { 'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}` }
                     });
-                    
-                    if (!response.ok) throw new Error("Lỗi kết nối Airtable");
-                    
+
+                    if (!response.ok) throw new Error('Lỗi kết nối Airtable');
+
                     const data = await response.json();
-                    if (data.records) {
-                        allRecords = allRecords.concat(data.records);
-                    }
+                    if (data.records) allRecords = allRecords.concat(data.records);
                     offset = data.offset;
                 } while (offset);
 
-                // Lọc bỏ rác & Sắp xếp mới nhất lên đầu
                 allRecords = allRecords.filter(r => r && r.createdTime);
                 allRecords.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
-                
+
                 document.getElementById('totalCount').textContent = allRecords.length;
-                
                 const todayStr = new Date().toDateString();
-                document.getElementById('todayCount').textContent = allRecords.filter(r => 
+                document.getElementById('todayCount').textContent = allRecords.filter(r =>
                     new Date(r.createdTime).toDateString() === todayStr
                 ).length;
 
                 handleFilterChange();
             } catch (err) {
-                loading.innerHTML = `<span style="color:red">❌ Lỗi: ${err.message}</span>`;
+                loading.innerHTML = `<span style="color:red">❌ Lỗi: ${esc(err.message)}</span>`;
             } finally {
                 if (allRecords.length > 0) loading.style.display = 'none';
             }
         }
 
-        // 3. Xử lý lọc dữ liệu
         function handleFilterChange() {
             const staffValue = document.getElementById('staffFilter').value;
             const fromDateStr = document.getElementById('fromDate').value;
@@ -337,10 +352,8 @@
                 const recordDate = new Date(record.createdTime);
                 const rDateClean = new Date(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate());
 
-                // Lọc theo cán bộ
                 const matchStaff = !staffValue || f['Cán bộ quản lý'] === staffValue;
 
-                // Lọc theo ngày
                 let matchDate = true;
                 if (fromDateStr) {
                     const dFrom = new Date(fromDateStr);
@@ -361,49 +374,56 @@
             renderTable();
         }
 
-        // 4. Hiển thị bảng dữ liệu
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             const table = document.getElementById('customerTable');
             tbody.innerHTML = '';
-            
+
             const start = (currentPage - 1) * pageSize;
             const end = start + pageSize;
             const pageData = filteredRecords.slice(start, end);
 
             if (pageData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 50px; color: #999;">
-                    Không tìm thấy khách hàng nào thỏa mãn bộ lọc.
-                </td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding: 50px; color: #999;">Không tìm thấy khách hàng nào thỏa mãn bộ lọc.</td></tr>`;
             } else {
-                pageData.forEach((record, index) => {
+                const rows = pageData.map((record, index) => {
                     const f = record.fields || {};
                     let loai = f['Loại đăng ký'] || '';
                     if (Array.isArray(loai)) loai = loai.join(', ');
 
-                    tbody.innerHTML += `
+                    const printFlag = f['Yêu cầu in mẫu biểu'] === 'Có'
+                        ? '<span class="badge badge-print">🖨️ Có</span>'
+                        : '<span class="badge badge-normal">Không</span>';
+
+                    return `
                         <tr>
                             <td style="color: #999;">${start + index + 1}</td>
-                            <td><strong>${loai}</strong></td>
-                            <td>${f['Số tài khoản'] || f['account_number'] || '-'}</td>
-                            <td>${f['Tên khách hàng'] || f['customer_name'] || '-'}</td>
-                            <td>${f['Cán bộ quản lý'] || '-'}</td>
-                            <td style="font-size: 12px; color: #666;">${f['Ghi chú'] || ''}</td>
-                            <td>${new Date(record.createdTime).toLocaleString('vi-VN')}</td>
+                            <td><strong>${esc(loai)}</strong></td>
+                            <td>${esc(f['Số tài khoản'] || f['account_number'] || '-')}</td>
+                            <td>${esc(f['Tên khách hàng'] || f['customer_name'] || '-')}</td>
+                            <td>${esc(f['Tên chủ hộ'] || '-')}</td>
+                            <td>${esc(f['Số CCCD'] || '-')}</td>
+                            <td>${esc(f['Ngày cấp'] || '-')}</td>
+                            <td>${esc(f['Nơi cấp'] || '-')}</td>
+                            <td style="min-width: 220px;">${esc(f['Địa chỉ'] || '-')}</td>
+                            <td>${esc(f['Cán bộ quản lý'] || '-')}</td>
+                            <td>${printFlag}</td>
+                            <td style="font-size: 12px; color: #666; min-width: 180px;">${esc(f['Ghi chú'] || '')}</td>
+                            <td>${esc(new Date(record.createdTime).toLocaleString('vi-VN'))}</td>
                         </tr>
                     `;
-                });
+                }).join('');
+                tbody.innerHTML = rows;
             }
+
             table.style.display = 'table';
             renderPagination();
         }
 
-        // 5. Phân trang
         function renderPagination() {
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
             const totalPages = Math.ceil(filteredRecords.length / pageSize);
-
             if (totalPages <= 1) return;
 
             const addBtn = (label, page, disabled = false, active = false) => {
@@ -416,7 +436,6 @@
             };
 
             addBtn('«', 1, currentPage === 1);
-            
             let startPage = Math.max(1, currentPage - 2);
             let endPage = Math.min(totalPages, startPage + 4);
             if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
@@ -434,39 +453,40 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 6. Reset bộ lọc
         function resetFilters() {
             document.getElementById('staffFilter').value = '';
-            // Xóa ngày để hiện toàn bộ dữ liệu lịch sử
             document.getElementById('fromDate').value = '';
             document.getElementById('toDate').value = '';
             handleFilterChange();
         }
 
-        // 7. Xuất Excel
         function exportToExcel() {
-            if (filteredRecords.length === 0) return alert("Không có dữ liệu!");
-            
+            if (filteredRecords.length === 0) return alert('Không có dữ liệu!');
+
             const data = filteredRecords.map((r, i) => ({
-                "STT": i + 1,
-                "Loại dịch vụ": Array.isArray(r.fields['Loại đăng ký']) ? r.fields['Loại đăng ký'].join(', ') : r.fields['Loại đăng ký'],
-                "Số tài khoản": r.fields['Số tài khoản'] || r.fields['account_number'],
-                "Số điện thoại": r.fields['Số điện thoại'] || r.fields['phone'],
-                "Tên khách hàng": r.fields['Tên khách hàng'] || r.fields['customer_name'],
-                "Cán bộ quản lý": r.fields['Cán bộ quản lý'],
-                "Ghi chú": r.fields['Ghi chú'],
-                "Ngày giờ đăng ký": new Date(r.createdTime).toLocaleString('vi-VN')
+                'STT': i + 1,
+                'Loại dịch vụ': Array.isArray(r.fields['Loại đăng ký']) ? r.fields['Loại đăng ký'].join(', ') : r.fields['Loại đăng ký'],
+                'Số tài khoản': r.fields['Số tài khoản'] || r.fields['account_number'],
+                'Số điện thoại': r.fields['Số điện thoại'] || r.fields['phone'],
+                'Tên khách hàng': r.fields['Tên khách hàng'] || r.fields['customer_name'],
+                'Tên chủ hộ': r.fields['Tên chủ hộ'] || '',
+                'Số CCCD': r.fields['Số CCCD'] || '',
+                'Ngày cấp': r.fields['Ngày cấp'] || '',
+                'Nơi cấp': r.fields['Nơi cấp'] || '',
+                'Địa chỉ': r.fields['Địa chỉ'] || '',
+                'Cán bộ quản lý': r.fields['Cán bộ quản lý'] || '',
+                'Yêu cầu in mẫu biểu': r.fields['Yêu cầu in mẫu biểu'] || 'Không',
+                'Ghi chú': r.fields['Ghi chú'] || '',
+                'Ngày giờ đăng ký': new Date(r.createdTime).toLocaleString('vi-VN')
             }));
 
             const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "DanhSachKH");
-            
+            XLSX.utils.book_append_sheet(wb, ws, 'DanhSachKH');
             const fileName = `BaoCao_Agribank_${new Date().getTime()}.xlsx`;
             XLSX.writeFile(wb, fileName);
         }
 
-        // Khởi động
         initDefaultDates();
         loadData();
     </script>

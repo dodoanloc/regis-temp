@@ -1,178 +1,158 @@
-# Website Đăng ký Thông tin Khách hàng (Airtable Integration)
+# Website Đăng ký Thông tin Khách hàng (Airtable Integration + DOCX Export)
 
-Website đăng ký thông tin khách hàng sử dụng **GitHub Pages** + **Airtable** (không cần server/PHP/Database).
+Website đăng ký thông tin khách hàng sử dụng **GitHub Pages** + **Airtable** để lưu dữ liệu, đồng thời có thể **xuất mẫu biểu DOCX** ngay trên trình duyệt khi người dùng chọn **In mẫu biểu**.
 
-## 🌐 LINK WEBSITE:
+## 🌐 LINK WEBSITE
 - **Form đăng ký:** https://dodoanloc.github.io/regis/
 - **Trang quản lý:** https://dodoanloc.github.io/regis/admin.html
 
 ---
 
-## 📋 CẤU HÌNH AIRTABLE (BẮT BUỘC)
+## ✨ TÍNH NĂNG MỚI
 
-Để website hoạt động, bạn **PHẢI** làm theo các bước sau:
+### Form đăng ký (`index.html`)
+- ✅ Nút **Đăng ký** để lưu dữ liệu như hiện tại
+- ✅ Nút **In mẫu biểu** cạnh nút Đăng ký
+- ✅ **Chỉ khi chọn loại đăng ký là `Loa Thần Tài`** thì nút In mẫu biểu mới khả dụng
+- ✅ Khi bấm **In mẫu biểu**, form hiện thêm các trường:
+  - Tên chủ hộ
+  - Số CCCD
+  - Ngày cấp
+  - Nơi cấp
+  - Địa chỉ
+- ✅ Sau khi bấm **Đăng ký**:
+  - ghi dữ liệu vào Airtable
+  - nếu đang bật chế độ in mẫu biểu thì xuất file **DOCX**
 
-### **BƯỚC 1: Tạo Airtable Base**
-
-1. Đăng nhập vào [Airtable](https://airtable.com)
-2. Click **"Create a base"** → Chọn **"Start from scratch"**
-3. Đặt tên base: `Customer Registration`
-
-### **BƯỚC 2: Thiết lập Table**
-
-Trong base vừa tạo, đổi tên table từ "Table 1" thành **"Customers"**
-
-Tạo các cột sau:
-
-| Tên cột | Kiểu dữ liệu | Ghi chú |
-|---------|--------------|---------|
-| **Số tài khoản** | Single line text | Số tài khoản khách hàng |
-| **Số điện thoại** | Single line text | SĐT 10-11 số |
-| **Tên khách hàng** | Single line text | Họ và tên |
-| **Ngày đăng ký** | Created time | Tự động ghi lại thờì gian |
-
-**Cách tạo cột "Ngày đăng ký":**
-1. Click dấu **+** để thêm cột mới
-2. Chọn field type: **"Created time"**
-3. Đặt tên: **"Ngày đăng ký"**
-
-### **BƯỚC 3: Lấy Base ID**
-
-1. Mở base "Customer Registration" trong trình duyệt
-2. Nhìn vào URL: `https://airtable.com/appXXXXXXXXXXXXXX/tbl...`
-3. Copy phần `appXXXXXXXXXXXXXX` (bắt đầu bằng **app**)
-   - Ví dụ: `app1234567890abcd`
-
-### **BƯỚC 4: Cập nhật Base ID trong code**
-
-**Cách 1: Edit trực tiếp trên GitHub (Dễ nhất)**
-
-1. Vào: https://github.com/dodoanloc/regis/edit/main/index.html
-2. Tìm dòng: `baseId: ''`
-3. Sửa thành: `baseId: 'appXXXXXXXXXXXXXX'` (thay X bằng ID của bạn)
-4. Tương tự sửa trong file `admin.html`
-5. Click **"Commit changes"**
-
-**Cách 2: Edit local rồi push**
-
-```bash
-cd ~/.openclaw/workspace/customer-registration-static
-
-# Sửa file index.html và admin.html
-# Thay baseId: '' thành baseId: 'appXXXXXXXXXXXXXX'
-
-git add .
-git commit -m "Update Airtable Base ID"
-git push origin main
-```
+### Trang quản lý (`admin.html`)
+- ✅ Hiển thị thêm các cột:
+  - Tên chủ hộ
+  - Số CCCD
+  - Ngày cấp
+  - Nơi cấp
+  - Địa chỉ
+  - Yêu cầu in mẫu biểu
+- ✅ Xuất Excel gồm cả các trường bổ sung
 
 ---
 
 ## 📁 CẤU TRÚC DỰ ÁN
 
+```txt
+regis/
+├── index.html
+├── admin.html
+├── thank-you.html
+├── error.html
+├── assets/
+│   ├── pizzip.min.js
+│   └── docxtemplater.js
+├── templates/
+│   ├── mau_bieu.docx        # bạn cần thêm file này
+│   └── README.txt
+└── README.md
 ```
-customer-registration-static/
-├── index.html       # Form đăng ký (gửi data đến Airtable)
-├── admin.html       # Trang quản lý (xem data từ Airtable)
-├── thank-you.html   # Trang thông báo thành công
-├── error.html       # Trang thông báo lỗi
-└── README.md        # Hướng dẫn này
+
+---
+
+## 📋 CẤU HÌNH AIRTABLE
+
+Repo hiện đang ghi vào Airtable table đang dùng. Để lưu được đầy đủ dữ liệu mới, anh cần tạo thêm các cột sau trong Airtable:
+
+| Tên cột | Kiểu dữ liệu gợi ý |
+|---|---|
+| Loại đăng ký | Single line text |
+| Số tài khoản | Single line text |
+| Số điện thoại | Single line text |
+| Tên khách hàng | Single line text |
+| Cán bộ quản lý | Single line text |
+| Ghi chú | Long text |
+| Tên chủ hộ | Single line text |
+| Số CCCD | Single line text |
+| Ngày cấp | Date |
+| Nơi cấp | Single line text |
+| Địa chỉ | Long text |
+| Yêu cầu in mẫu biểu | Single line text hoặc Single select |
+| Ngày đăng ký | Created time |
+
+> Nếu thiếu các cột mới, Airtable có thể báo lỗi khi submit.
+
+---
+
+## 🖨️ CẤU HÌNH TEMPLATE DOCX
+
+Đặt file Word mẫu vào:
+
+```txt
+templates/mau_bieu.docx
+```
+
+Hiện repo local đã được gắn file mẫu anh gửi cho luồng **Loa Thần Tài**.
+
+Trong file DOCX, dùng các placeholder sau:
+
+```txt
+{loai_dang_ky}
+{account_number}
+{phone}
+{customer_name}
+{can_bo_quan_ly}
+{ghi_chu}
+{ten_chu_ho}
+{so_cccd}
+{ngay_cap}
+{noi_cap}
+{dia_chi}
+{ngay_dang_ky}
+{gio_dang_ky}
+```
+
+Ví dụ trong Word:
+- Tên chủ hộ: `{ten_chu_ho}`
+- CCCD số: `{so_cccd}`
+- Ngày cấp: `{ngay_cap}`
+- Nơi cấp: `{noi_cap}`
+- Địa chỉ thường trú: `{dia_chi}`
+
+Khi người dùng bấm **In mẫu biểu** rồi **Đăng ký**, webapp sẽ:
+1. lưu record vào Airtable
+2. đọc `templates/mau_bieu.docx`
+3. thay placeholder bằng dữ liệu thực tế
+4. tải file DOCX về máy người dùng
+
+---
+
+## 🚀 CÁCH TRIỂN KHAI
+
+### 1. Thêm template Word
+Copy file mẫu biểu của anh vào:
+
+```txt
+templates/mau_bieu.docx
+```
+
+### 2. Tạo thêm cột trong Airtable
+Đảm bảo có các cột mới đã liệt kê bên trên.
+
+### 3. Commit và push
+```bash
+git add .
+git commit -m "feat: add docx print flow for regis"
+git push origin main
 ```
 
 ---
 
-## ✨ TÍNH NĂNG
-
-### Form đăng ký (index.html)
-- ✅ Giao diện đẹp, gradient UI, responsive
-- ✅ Validation: Số tài khoản (chỉ số), SĐT (10-11 số)
-- ✅ Gửi trực tiếp đến Airtable qua JavaScript API
-- ✅ Thông báo thành công/lỗi ngay lập tức
-- ✅ Chuyển hướng đến trang thank-you sau khi đăng ký
-
-### Trang quản lý (admin.html)
-- ✅ Xem toàn bộ danh sách khách hàng
-- ✅ Thống kê: Tổng số KH, KH đăng ký hôm nay
-- ✅ Sắp xếp theo thờì gian mới nhất
-- ✅ Nút làm mới dữ liệu
+## ⚠️ LƯU Ý
+- Nếu thiếu file `templates/mau_bieu.docx`, webapp vẫn lưu được dữ liệu nhưng sẽ báo lỗi khi xuất DOCX.
+- Vì đang chạy GitHub Pages tĩnh, việc xuất DOCX diễn ra **trên trình duyệt**.
+- Repo hiện vẫn dùng Airtable token ở frontend, nên chỉ phù hợp demo/nội bộ. Nếu dùng thật, nên chuyển sang backend/proxy.
 
 ---
 
-## 🔒 BẢO MẬT
-
-**Lưu ý quan trọng:**
-- Token Airtable được hardcode trong file HTML
-- Repo này là **public** → Mọi ngườì đều có thể xem token
-- Đây là **demo/prototype**, không nên dùng cho production thực tế
-
-**Nếu cần bảo mật hơn:**
-- Chuyển repo sang **private**
-- Hoặc dùng server-side proxy để giấu token
-- Hoặc dùng Airtable OAuth thay vì Personal Token
-
----
-
-## 💰 CHI PHÍ
-
-| Dịch vụ | Free Tier | Paid |
-|---------|-----------|------|
-| **GitHub Pages** | Miễn phí | Miễn phí |
-| **Airtable** | 1,200 records/tháng | $20/tháng |
-
----
-
-## 🐛 XỬ LÝ LỖI
-
-### "Chưa cấu hình Base ID"
-- Bạn chưa cập nhật `baseId` trong file HTML
-- Làm theo Bước 4 ở trên
-
-### "401 Unauthorized"
-- Token không hợp lệ hoặc đã hết hạn
-- Kiểm tra lại token trong Airtable settings
-
-### "Could not find table Customers"
-- Tên table không đúng (phải là "Customers")
-- Hoặc tên cột không khớp (xem Bước 2)
-
-### "Network error"
-- Kiểm tra kết nối internet
-- Airtable API có thể tạm thờì bị lỗi
-
----
-
-## 📝 EXPORT DỮ LIỆU
-
-Từ Airtable, bạn có thể:
-1. Export CSV: Click **...** → **Download CSV**
-2. Export Excel: Dùng Airtable desktop app
-3. API access: Sử dụng Airtable API để lấy data
-
----
-
-## 🚀 TÙY CHỈNH
-
-### Thêm trường mới
-
-1. Thêm cột trong Airtable
-2. Sửa file `index.html` để thêm input field
-3. Cập nhật JavaScript để gửi field mới
-
-### Đổi màu sắc
-
-Trong CSS, tìm:
-```css
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-```
-Thay đổi mã màu theo ý muốn.
-
----
-
-## 📞 HỖ TRỢ
-
-- **Airtable Docs:** https://airtable.com/developers/web/api/introduction
-- **GitHub Pages Docs:** https://docs.github.com/en/pages
-
----
-
-*Created by Beta 🦊 - AI Assistant*
+## GỢI Ý BƯỚC TIẾP THEO
+Nếu anh muốn em làm tiếp, em có thể:
+1. **nhét luôn mẫu `.docx` thật vào repo** nếu anh gửi file
+2. **push code lên GitHub**
+3. **refactor tiếp** để dùng chung danh sách cán bộ và bớt lặp code
+4. **chuyển sang backend/serverless** để vừa an toàn hơn vừa dễ chống trùng hơn
