@@ -23,6 +23,7 @@ Website đăng ký thông tin khách hàng sử dụng **GitHub Pages** + **Airt
 - ✅ Sau khi bấm **Đăng ký**:
   - ghi dữ liệu vào Airtable
   - nếu đang bật chế độ in mẫu biểu thì xuất file **DOCX**
+  - hiển thị thông báo thành công màu xanh ngay trên cụm nút, không chuyển sang trang thank-you
 
 ### Trang quản lý (`admin.html`)
 - ✅ Hiển thị thêm các cột:
@@ -42,7 +43,7 @@ Website đăng ký thông tin khách hàng sử dụng **GitHub Pages** + **Airt
 regis/
 ├── index.html
 ├── admin.html
-├── thank-you.html
+├── thank-you.html   # hiện không còn dùng trong flow chính
 ├── error.html
 ├── assets/
 │   ├── pizzip.min.js

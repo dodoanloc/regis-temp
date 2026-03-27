@@ -781,13 +781,10 @@
                 const savedStaff = formValues.can_bo_quan_ly;
                 document.getElementById('registrationForm').reset();
                 document.getElementById('can_bo_quan_ly').value = savedStaff;
-                updatePrintMode(false, { clearValues: true });
+                updatePrintMode(false, { clearValues: true, preserveMessage: true });
                 document.getElementById('can_bo_quan_ly').value = savedStaff;
                 syncPrintButtonState();
-
-                setTimeout(() => {
-                    window.location.href = 'thank-you.html';
-                }, 1800);
+                document.querySelector('.button-row').scrollIntoView({ behavior: 'smooth', block: 'center' });
             } catch (error) {
                 showMessage('error', `❌ ${error.message}`);
                 console.error(error);
