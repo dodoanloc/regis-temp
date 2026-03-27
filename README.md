@@ -18,7 +18,7 @@ Website đăng ký thông tin khách hàng sử dụng **GitHub Pages** + **Airt
   - Tên chủ hộ
   - Số CCCD
   - Ngày cấp
-  - Nơi cấp
+  - Nơi cấp (dropdown: `Cục CS QLHC về TTXH` hoặc `Bộ Công An`)
   - Địa chỉ
 - ✅ Sau khi bấm **Đăng ký**:
   - ghi dữ liệu vào Airtable
@@ -71,7 +71,7 @@ Repo hiện đang ghi vào Airtable table đang dùng. Để lưu được đầ
 | Tên chủ hộ | Single line text |
 | Số CCCD | Single line text |
 | Ngày cấp | Date |
-| Nơi cấp | Single line text |
+| Nơi cấp | Single select hoặc Single line text |
 | Địa chỉ | Long text |
 | Yêu cầu in mẫu biểu | Single line text hoặc Single select |
 | Ngày đăng ký | Created time |
